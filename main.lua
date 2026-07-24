@@ -198,7 +198,7 @@ local function OpenMainHub()
     TitleText.Position = UDim2.new(0, 32, 0, 0)
     TitleText.Size = UDim2.new(1, -40, 1, 0)
     TitleText.Font = Enum.Font.SourceSansBold
-    TitleText.Text = "Wornex Hub || 5.0 Version || Have good day ! - " .. PlayerName .. " by Wozzy By Saitama"
+    TitleText.Text = "Wornex Hub || 5.0 Version || Have good day ! - " .. PlayerName .. " by Wozzy"
     TitleText.TextColor3 = Color3.fromRGB(255, 255, 255)
     TitleText.TextSize = 13
     TitleText.TextXAlignment = Enum.TextXAlignment.Left
@@ -1133,4 +1133,3 @@ VerifyBtn.MouseButton1Click:Connect(function()
         VerifyBtn.BackgroundColor3 = Color3.fromRGB(180, 20, 20)
     end
 end)
-
