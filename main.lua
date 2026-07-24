@@ -1,5 +1,5 @@
--- WORNEX HUB V5.0 - Op Main & Expanded Farm Fully Functional (Draggable & Scaled Anti AFK UI + Fixed Auto Punch)
-local CorrectKey = "WORNEX HUB"
+-- QTX CLAN - Op Main & Expanded Farm Fully Functional (Draggable & Scaled Anti AFK UI + Fixed Auto Punch)
+local CorrectKey = "QTXONTOP"
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -14,7 +14,7 @@ local rEvents = ReplicatedStorage:WaitForChild("rEvents", 5)
 -- 1. KEY SYSTEM EKRANI
 ---------------------------------------------------------
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "WornexKeySystem"
+ScreenGui.Name = "QTXKeySystem"
 ScreenGui.Parent = game:GetService("CoreGui") or LocalPlayer:WaitForChild("PlayerGui")
 
 local KeyFrame = Instance.new("Frame")
@@ -48,7 +48,7 @@ Title.BackgroundTransparency = 1
 Title.Position = UDim2.new(0, 0, 0, 15)
 Title.Size = UDim2.new(1, 0, 0, 30)
 Title.Font = Enum.Font.SourceSansBold
-Title.Text = "🔴 WORNEX HUB V5.0 🔴"
+Title.Text = "🔴 QTX CLANS 🔴"
 Title.TextColor3 = Color3.fromRGB(230, 30, 30)
 Title.TextSize = 17
 
@@ -203,23 +203,31 @@ local function OpenMainHub()
     TitleText.TextSize = 13
     TitleText.TextXAlignment = Enum.TextXAlignment.Left
 
-    -- Sekmeler Barı
-    local TabBar = Instance.new("Frame")
+    -- Kaydırılabilir Sekmeler Barı (ScrollingFrame)
+    local TabBar = Instance.new("ScrollingFrame")
     TabBar.Parent = MainFrame
     TabBar.BackgroundColor3 = Color3.fromRGB(25, 2, 2)
+    TabBar.BackgroundTransparency = 0
+    TabBar.BorderSizePixel = 0
     TabBar.Position = UDim2.new(0, 0, 0, 28)
     TabBar.Size = UDim2.new(1, 0, 0, 30)
+    TabBar.CanvasSize = UDim2.new(0, 0, 0, 0)
+    TabBar.ScrollBarThickness = 3
+    TabBar.ScrollingDirection = Enum.ScrollingDirection.X
 
-    local Tabs = {"Op Main", "Farm", "Fast Farm", "Gifts", "Misc", "Crystals", "Stats"}
+    local Tabs = {"Teleports", "Credits", "Farm", "Fast Farm", "Gifts", "Crystals", "Stats", "Op Main", "Calculator", "Killer", "Trade", "Extras"}
     local TabButtons = {}
     local TabFrames = {}
+
+    local tabButtonWidth = 110
+    TabBar.CanvasSize = UDim2.new(0, #Tabs * tabButtonWidth, 0, 0)
 
     for i, tabName in ipairs(Tabs) do
         local TabBtn = Instance.new("TextButton")
         TabBtn.Parent = TabBar
         TabBtn.BackgroundTransparency = 1
-        TabBtn.Position = UDim2.new((i - 1) * (1 / #Tabs), 0, 0, 0)
-        TabBtn.Size = UDim2.new(1 / #Tabs, 0, 1, 0)
+        TabBtn.Position = UDim2.new(0, (i - 1) * tabButtonWidth, 0, 0)
+        TabBtn.Size = UDim2.new(0, tabButtonWidth, 1, 0)
         TabBtn.Font = Enum.Font.SourceSansBold
         TabBtn.Text = tabName
         TabBtn.TextColor3 = (i == 1) and Color3.fromRGB(255, 60, 60) or Color3.fromRGB(180, 180, 180)
@@ -349,19 +357,16 @@ local function OpenMainHub()
     _G.FastRebirth = false
     _G.SetSize1 = false
 
-    -- Performance & Tools
     _G.BoostFPS = false
     _G.OptimizePing = false
     _G.GamepassAutoLift = false
     _G.FastTools = false
 
-    -- Auto Multi Tools
     _G.AutoMultiWeight = false
     _G.AutoMultiPushups = false
     _G.AutoMultiSitups = false
     _G.AutoMultiHandstands = false
 
-    -- Auto Rebirth & Extra Farm
     _G.AutoRebirthInf = false
     _G.AutoSize1_Farm = false
     _G.AutoSize2_Farm = false
@@ -369,14 +374,7 @@ local function OpenMainHub()
     _G.AutoEgg30 = false
     _G.AutoEgg60 = false
 
-    _G.AutoSize = false
-    _G.AutoSetSize = false
-    _G.AutoSpeed = false
-    _G.AutoSetSpeed = false
-    _G.SizeNaN = false
-
     _G.NoClip = false
-    _G.InfJump = false
     _G.FullWalkOnWater = false
 
     _G.AutoOpenCrystal = false
@@ -395,14 +393,13 @@ local function OpenMainHub()
     _G.AutoClearInventory = false
 
     ---------------------------------------------------------
-    -- WORNEX AFK UI OLUŞTURUCU (Daha büyük ve taşınılabilir/draggable)
+    -- WORNEX AFK UI OLUŞTURUCU
     ---------------------------------------------------------
     local AFKStatsGui = Instance.new("ScreenGui")
     AFKStatsGui.Name = "WornexAFKGui"
     AFKStatsGui.Parent = game:GetService("CoreGui") or LocalPlayer:WaitForChild("PlayerGui")
     AFKStatsGui.Enabled = false
 
-    -- Ortadaki Ana Bilgi Kutusu (Daha büyük yapıldı, Draggable eklendi)
     local AFKMainBox = Instance.new("Frame")
     AFKMainBox.Parent = AFKStatsGui
     AFKMainBox.BackgroundColor3 = Color3.fromRGB(180, 20, 20)
@@ -457,7 +454,6 @@ local function OpenMainHub()
     AFKPingLabel.TextSize = 15
     AFKPingLabel.TextXAlignment = Enum.TextXAlignment.Left
 
-    -- Sağ Alttaki Bildirim Kutusu (Draggable yapıldı)
     local AFKNotification = Instance.new("Frame")
     AFKNotification.Parent = AFKStatsGui
     AFKNotification.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
@@ -502,7 +498,6 @@ local function OpenMainHub()
     ANText2.TextSize = 12
     ANText2.TextXAlignment = Enum.TextXAlignment.Left
 
-    -- Sol Üstteki Başlık Logosu (Draggable yapıldı)
     local TopHUDTag = Instance.new("Frame")
     TopHUDTag.Parent = AFKStatsGui
     TopHUDTag.BackgroundColor3 = Color3.fromRGB(150, 15, 15)
@@ -536,7 +531,6 @@ local function OpenMainHub()
     THTLabel.TextSize = 12
     THTLabel.TextXAlignment = Enum.TextXAlignment.Left
 
-    -- Sayaç ve Veri Güncelleyici
     local afkStartTime = 0
     local frameCount = 0
     local lastTick = tick()
@@ -569,7 +563,7 @@ local function OpenMainHub()
     end)
 
     ---------------------------------------------------------
-    -- SAĞLAMLAŞTIRILMIŞ YARDIMCI FONKSİYONLAR
+    -- YARDIMCI FONKSİYONLAR
     ---------------------------------------------------------
     local function getREvents()
         if not rEvents or not rEvents.Parent then
@@ -685,7 +679,6 @@ local function OpenMainHub()
     ---------------------------------------------------------
     local FarmFrame = TabFrames["Farm"]
     
-    -- Performance & Tools
     CreateSectionTitle(FarmFrame, "⚡ Performance & Tools", 0)
     CreateCheckBox(FarmFrame, "🚀 Boost FPS", 25, function(v) 
         _G.BoostFPS = v 
@@ -716,7 +709,6 @@ local function OpenMainHub()
 
     CreateLine(FarmFrame, 255)
 
-    -- Auto Multi Tools
     CreateSectionTitle(FarmFrame, "🛠️ Auto Multi Tools", 265)
     CreateCheckBox(FarmFrame, "🏋️ Auto Weight + Punch", 290, function(v) _G.AutoMultiWeight = v end)
     CreateCheckBox(FarmFrame, "💥 Auto Pushups + Punch", 315, function(v) _G.AutoMultiPushups = v end)
@@ -725,7 +717,6 @@ local function OpenMainHub()
 
     CreateLine(FarmFrame, 395)
 
-    -- Auto Rebirth & Extras
     CreateSectionTitle(FarmFrame, "🔄 Auto Rebirth & Extras", 405)
     CreateCheckBox(FarmFrame, "♾️ Auto Rebirth (Infinite)", 430, function(v) _G.AutoRebirthInf = v end)
     CreateCheckBox(FarmFrame, "📏 Auto Size 1", 455, function(v) _G.AutoSize1_Farm = v end)
@@ -816,56 +807,13 @@ local function OpenMainHub()
     end)
 
     ---------------------------------------------------------
-    -- 5. MISC SEKMESİ
+    -- 5. STATS (MISC/STATS) SEKMESİ
     ---------------------------------------------------------
-    local MiscFrame = TabFrames["Misc"]
-    CreateSectionTitle(MiscFrame, "🏆 Size & Speed", 0)
-    CreateCheckBox(MiscFrame, "📐 Auto Size", 25, function(v) 
-        _G.AutoSize = v 
-        if v then
-            local evs = getREvents()
-            if evs and evs:FindFirstChild("changeSizeRemote") then
-                pcall(function() evs.changeSizeRemote:FireServer(1) end)
-            end
-        end
-    end)
-    CreateCheckBox(MiscFrame, "🔄 Auto Set Size", 50, function(v) 
-        _G.AutoSetSize = v 
-        if v then
-            local evs = getREvents()
-            if evs and evs:FindFirstChild("changeSizeRemote") then
-                pcall(function() evs.changeSizeRemote:FireServer(2) end)
-            end
-        end
-    end)
-    CreateCheckBox(MiscFrame, "🏃 Auto Speed", 75, function(v) 
-        _G.AutoSpeed = v 
-        if v and LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid") then
-            pcall(function() LocalPlayer.Character.Humanoid.WalkSpeed = 100 end)
-        end
-    end)
-    CreateCheckBox(MiscFrame, "⚡ Auto Set Speed", 100, function(v) 
-        _G.AutoSetSpeed = v 
-        if v and LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid") then
-            pcall(function() LocalPlayer.Character.Humanoid.WalkSpeed = 250 end)
-        end
-    end)
-    CreateCheckBox(MiscFrame, "❌ Size NaN", 125, function(v) 
-        _G.SizeNaN = v 
-        if v then
-            local evs = getREvents()
-            if evs and evs:FindFirstChild("changeSizeRemote") then
-                pcall(function() evs.changeSizeRemote:FireServer(0/0) end)
-            end
-        end
-    end)
-
-    CreateLine(MiscFrame, 155)
-
-    CreateSectionTitle(MiscFrame, "🚶 Movement", 165)
-    CreateCheckBox(MiscFrame, "👤 No-Clip", 190, function(v) _G.NoClip = v end)
-    CreateCheckBox(MiscFrame, "🦘 Infinite Jump", 215, function(v) _G.InfJump = v end)
-    CreateCheckBox(MiscFrame, "🌊 Full Walk on Water", 240, function(v) _G.FullWalkOnWater = v end)
+    local MiscFrame = TabFrames["Stats"]
+    CreateSectionTitle(MiscFrame, "🚶 Movement", 0)
+    CreateCheckBox(MiscFrame, "👤 No-Clip", 25, function(v) _G.NoClip = v end)
+    CreateCheckBox(MiscFrame, "🦘 Infinite Jump", 50, function(v) _G.InfJump = v end)
+    CreateCheckBox(MiscFrame, "🌊 Full Walk on Water", 75, function(v) _G.FullWalkOnWater = v end)
 
     ---------------------------------------------------------
     -- 6. CRYSTALS SEKMESİ
@@ -905,9 +853,9 @@ local function OpenMainHub()
     -- 7. STATS SEKMESİ
     ---------------------------------------------------------
     local StatsFrame = TabFrames["Stats"]
-    CreateSectionTitle(StatsFrame, "📊 Player Stats:", 0)
+    CreateSectionTitle(StatsFrame, "📊 Player Stats:", 115)
 
-    local ChoosePlayerBtn = CreateButton(StatsFrame, "👤 Choose Player", 30)
+    local ChoosePlayerBtn = CreateButton(StatsFrame, "👤 Choose Player", 145)
     ChoosePlayerBtn.Size = UDim2.new(0, 240, 0, 28)
     ChoosePlayerBtn.BackgroundColor3 = Color3.fromRGB(120, 20, 20)
     ChoosePlayerBtn.TextXAlignment = Enum.TextXAlignment.Left
@@ -916,7 +864,7 @@ local function OpenMainHub()
     DropdownFrame.Parent = StatsFrame
     DropdownFrame.BackgroundColor3 = Color3.fromRGB(20, 5, 5)
     DropdownFrame.BorderColor3 = Color3.fromRGB(100, 20, 20)
-    DropdownFrame.Position = UDim2.new(0, 5, 0, 60)
+    DropdownFrame.Position = UDim2.new(0, 5, 0, 175)
     DropdownFrame.Size = UDim2.new(0, 240, 0, 100)
     DropdownFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
     DropdownFrame.Visible = false
@@ -955,14 +903,14 @@ local function OpenMainHub()
         if DropdownFrame.Visible then updatePlayerDropdown() end
     end)
 
-    local StatNameLabel = CreateSectionTitle(StatsFrame, "👤 Name: N/A", 68)
-    local StatUserLabel = CreateSectionTitle(StatsFrame, "👤 Username: N/A", 93)
-    local StatStrengthLabel = CreateSectionTitle(StatsFrame, "💪 Strength: 0 (0)", 118)
-    local StatRebirthsLabel = CreateSectionTitle(StatsFrame, "🔄 Rebirths: 0 (0)", 143)
-    local StatDurabilityLabel = CreateSectionTitle(StatsFrame, "🛡️ Durability: 0 (0)", 168)
-    local StatAgilityLabel = CreateSectionTitle(StatsFrame, "🏃 Agility: 0 (0)", 193)
-    local StatKillsLabel = CreateSectionTitle(StatsFrame, "⚔️ Kills: 0 (0)", 218)
-    local StatKarmaLabel = CreateSectionTitle(StatsFrame, "😈 Evil Karma: 0 (0)", 243)
+    local StatNameLabel = CreateSectionTitle(StatsFrame, "👤 Name: N/A", 183)
+    local StatUserLabel = CreateSectionTitle(StatsFrame, "👤 Username: N/A", 208)
+    local StatStrengthLabel = CreateSectionTitle(StatsFrame, "💪 Strength: 0 (0)", 233)
+    local StatRebirthsLabel = CreateSectionTitle(StatsFrame, "🔄 Rebirths: 0 (0)", 258)
+    local StatDurabilityLabel = CreateSectionTitle(StatsFrame, "🛡️ Durability: 0 (0)", 283)
+    local StatAgilityLabel = CreateSectionTitle(StatsFrame, "🏃 Agility: 0 (0)", 308)
+    local StatKillsLabel = CreateSectionTitle(StatsFrame, "⚔️ Kills: 0 (0)", 333)
+    local StatKarmaLabel = CreateSectionTitle(StatsFrame, "😈 Evil Karma: 0 (0)", 358)
 
     task.spawn(function()
         while task.wait(0.5) do
@@ -991,6 +939,94 @@ local function OpenMainHub()
             end
         end
     end)
+
+    ---------------------------------------------------------
+    -- 8. CALCULATOR SEKMESİ
+    ---------------------------------------------------------
+    local CalculatorFrame = TabFrames["Calculator"]
+    CreateSectionTitle(CalculatorFrame, "🧮 Stats Calculator", 0)
+    CreateCheckBox(CalculatorFrame, "💪 Strength", 30, function(v) _G.CalcStrength = v end)
+    CreateCheckBox(CalculatorFrame, "🛡️ Durability", 60, function(v) _G.CalcDurability = v end)
+    CreateCheckBox(CalculatorFrame, "🔄 Rebirths", 90, function(v) _G.CalcRebirths = v end)
+    CreateCheckBox(CalculatorFrame, "⚔️ Kills", 120, function(v) _G.CalcKills = v end)
+    CreateCheckBox(CalculatorFrame, "🥊 Brawls", 150, function(v) _G.CalcBrawls = v end)
+    local ResetCalcBtn = CreateButton(CalculatorFrame, "🔄 Reset All Calculators", 185)
+    ResetCalcBtn.Size = UDim2.new(0, 240, 0, 28)
+    ResetCalcBtn.BackgroundColor3 = Color3.fromRGB(120, 20, 20)
+
+    ---------------------------------------------------------
+    -- 9. KILLER SEKMESİ
+    ---------------------------------------------------------
+    local KillerFrame = TabFrames["Killer"]
+    CreateSectionTitle(KillerFrame, "⚔️ Player Killer Options", 0)
+
+    ---------------------------------------------------------
+    -- 10. TRADE SEKMESİ
+    ---------------------------------------------------------
+    local TradeFrame = TabFrames["Trade"]
+    CreateSectionTitle(TradeFrame, "🤝 Trade System", 0)
+    CreateLine(TradeFrame, 25)
+
+    local ChooseTradePlayerBtn = CreateButton(TradeFrame, "👤 Choose Player", 35)
+    ChooseTradePlayerBtn.Size = UDim2.new(0, 240, 0, 28)
+    ChooseTradePlayerBtn.BackgroundColor3 = Color3.fromRGB(120, 20, 20)
+    ChooseTradePlayerBtn.TextXAlignment = Enum.TextXAlignment.Left
+
+    local ChoosePetBtn = CreateButton(TradeFrame, "🐾 Choose Pet", 70)
+    ChoosePetBtn.Size = UDim2.new(0, 240, 0, 28)
+    ChoosePetBtn.BackgroundColor3 = Color3.fromRGB(120, 20, 20)
+    ChoosePetBtn.TextXAlignment = Enum.TextXAlignment.Left
+
+    CreateCheckBox(TradeFrame, "🔄 Auto Trade", 105, function(v) _G.AutoTrade = v end)
+
+    ---------------------------------------------------------
+    -- 11. EXTRAS SEKMESİ
+    ---------------------------------------------------------
+    local ExtrasFrame = TabFrames["Extras"]
+    CreateSectionTitle(ExtrasFrame, "✨ Extra Features", 0)
+
+    ---------------------------------------------------------
+    -- 12. TELEPORTS SEKMESİ
+    ---------------------------------------------------------
+    local TeleportsFrame = TabFrames["Teleports"]
+    CreateSectionTitle(TeleportsFrame, "🗺️ All Islands Teleport", 0)
+
+    local Islands = {
+        {Name = "🏝️ Tiny Island", CFrame = CFrame.new(17, 3, 114)},
+        {Name = "🏝️ Frost Island", CFrame = CFrame.new(239, 137, -358)},
+        {Name = "🏝️ Mythical Island", CFrame = CFrame.new(2419, 15, 1075)},
+        {Name = "🏝️ Eternal Island", CFrame = CFrame.new(-3892, 929, -10557)},
+        {Name = "🏝️ Legend Island", CFrame = CFrame.new(4162, 607, -3955)},
+        {Name = "🏝️ Muscle King Island", CFrame = CFrame.new(-8612, 15, -5731)},
+        {Name = "🏝️ Enchanted Island", CFrame = CFrame.new(945, 66, 2197)},
+        {Name = "🏝️ Desert Island", CFrame = CFrame.new(827, 26, 4239)},
+        {Name = "🏝️ Jungle Island", CFrame = CFrame.new(-2462, 26, -3912)},
+        {Name = "🏝️ Inferno Island", CFrame = CFrame.new(2628, 66, -1141)},
+        {Name = "🏝️ Safe Zone / Spawn", CFrame = CFrame.new(0, 3, 0)}
+    }
+
+    for i, island in ipairs(Islands) do
+        local posY = 30 + ((i - 1) * 32)
+        local tpBtn = CreateButton(TeleportsFrame, island.Name, posY)
+        tpBtn.MouseButton1Click:Connect(function()
+            local char = LocalPlayer.Character
+            if char and char:FindFirstChild("HumanoidRootPart") then
+                pcall(function()
+                    char.HumanoidRootPart.CFrame = island.CFrame + Vector3.new(0, 5, 0)
+                end)
+            end
+        end)
+    end
+
+    ---------------------------------------------------------
+    -- 13. CREDITS SEKMESİ (Görseldeki Gibi Dolduruldu)
+    ---------------------------------------------------------
+    local CreditsFrame = TabFrames["Credits"]
+    CreateSectionTitle(CreditsFrame, "🌟 Credits & Information", 0)
+    CreateSectionTitle(CreditsFrame, "👑 Script Creator: WOZZY (MAMI HUB V2)", 30, Color3.fromRGB(255, 60, 60))
+    CreateSectionTitle(CreditsFrame, "💎 Hub Version: 5.0 Op Main & Expanded Farm", 60, Color3.fromRGB(255, 255, 255))
+    CreateSectionTitle(CreditsFrame, "🚀 Special Thanks: MAMI HUB Community", 90, Color3.fromRGB(100, 200, 255))
+    CreateSectionTitle(CreditsFrame, "✨ Key: BestMami", 120, Color3.fromRGB(74, 222, 128))
 
     ---------------------------------------------------------
     -- STEP VE RENDER DÖNGÜLERİ
@@ -1034,7 +1070,7 @@ local function OpenMainHub()
     end)
 
     ---------------------------------------------------------
-    -- TAM FONKSİYONEL ANA DÖNGÜ
+    -- ANA DÖNGÜ
     ---------------------------------------------------------
     task.spawn(function()
         local jungleFarmIndex = 1
@@ -1043,18 +1079,15 @@ local function OpenMainHub()
         while task.wait(_G.FastTools and 0.01 or 0.1) do
             local char = LocalPlayer.Character
 
-            -- Normal Tools
             if char and _G.AutoTool then
                 useToolAndPunch(_G.AutoTool)
             end
 
-            -- Multi Tools
             if _G.AutoMultiWeight then useToolAndPunch("Weight") end
             if _G.AutoMultiPushups then useToolAndPunch("Pushups") end
             if _G.AutoMultiSitups then useToolAndPunch("Situps") end
             if _G.AutoMultiHandstands then useToolAndPunch("Handstands") end
 
-            -- Gamepass AutoLift
             if _G.GamepassAutoLift then
                 local evs = getREvents()
                 if evs and evs:FindFirstChild("repEvent") then
@@ -1062,7 +1095,6 @@ local function OpenMainHub()
                 end
             end
 
-            -- Auto Rebirths
             if _G.FastRebirth or _G.AutoRebirthInf then
                 local evs = getREvents()
                 if evs and evs:FindFirstChild("rebirthRemote") then
@@ -1070,7 +1102,6 @@ local function OpenMainHub()
                 end
             end
 
-            -- Auto Sizes
             if _G.AutoSize1_Farm or _G.SetSize1 then
                 local evs = getREvents()
                 if evs and evs:FindFirstChild("changeSizeRemote") then
@@ -1085,12 +1116,10 @@ local function OpenMainHub()
                 end
             end
 
-            -- Teleport Muscle King
             if _G.AutoTeleportMuscleKing and char and char:FindFirstChild("HumanoidRootPart") and workspace:FindFirstChild("MuscleKing") then
                 pcall(function() char.HumanoidRootPart.CFrame = workspace.MuscleKing.CFrame end)
             end
 
-            -- Auto Jungle Gyms
             if _G.AutoJungleBench then fireGymEvent("Jungle Bench Press") end
             if _G.AutoJungleSquat then fireGymEvent("Jungle Squat") end
             if _G.AutoJunglePullUps then fireGymEvent("Jungle Pull Ups") end
@@ -1099,13 +1128,11 @@ local function OpenMainHub()
                 jungleFarmIndex = (jungleFarmIndex % #jungleGyms) + 1
             end
 
-            -- Auto Normal Gyms
             if _G.AutoBenchPress then fireGymEvent("Bench Press") end
             if _G.AutoSquat then fireGymEvent("Squat") end
             if _G.AutoDeadlift then fireGymEvent("Deadlift") end
             if _G.AutoPullUp then fireGymEvent("Pull Up") end
 
-            -- Auto Crystal
             if _G.AutoOpenCrystal and _G.SelectedCrystal ~= "" then
                 local evs = getREvents()
                 if evs and evs:FindFirstChild("openCrystalRemote") then
