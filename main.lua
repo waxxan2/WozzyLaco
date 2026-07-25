@@ -203,7 +203,7 @@ local function OpenMainHub()
     TitleText.TextSize = 13
     TitleText.TextXAlignment = Enum.TextXAlignment.Left
 
-    -- Kaydırılabilir Sekmeler Barı (ScrollingFrame)
+    -- Kaydırılabilir Sekmeler Barı (İstenen sıralamaya göre güncellendi)
     local TabBar = Instance.new("ScrollingFrame")
     TabBar.Parent = MainFrame
     TabBar.BackgroundColor3 = Color3.fromRGB(25, 2, 2)
@@ -215,7 +215,7 @@ local function OpenMainHub()
     TabBar.ScrollBarThickness = 3
     TabBar.ScrollingDirection = Enum.ScrollingDirection.X
 
-    local Tabs = {"Teleports", "Credits", "Farm", "Fast Farm", "Gifts", "Crystals", "Stats", "Op Main", "Calculator", "Killer", "Trade", "Extras"}
+    local Tabs = {"Op Main", "Farm", "Killer", "Fast Farm", "Calculator", "Stats", "Trade", "Teleports", "Extras", "Credits", "Gifts", "Crystals"}
     local TabButtons = {}
     local TabFrames = {}
 
@@ -239,7 +239,7 @@ local function OpenMainHub()
         ContentFrame.BackgroundTransparency = 1
         ContentFrame.Position = UDim2.new(0, 15, 0, 65)
         ContentFrame.Size = UDim2.new(1, -30, 1, -75)
-        ContentFrame.CanvasSize = UDim2.new(0, 0, 0, 1200)
+        ContentFrame.CanvasSize = UDim2.new(0, 0, 0, 1400)
         ContentFrame.ScrollBarThickness = 5
         ContentFrame.Visible = (i == 1)
         TabFrames[tabName] = ContentFrame
@@ -391,6 +391,41 @@ local function OpenMainHub()
     _G.AutoPullUp = false
 
     _G.AutoClearInventory = false
+
+    -- Extras Değişkenleri
+    _G.FollowPlayerTarget = nil
+    _G.DoFollowPlayer = false
+    _G.AutoGroundSlam = false
+    _G.EatEggs = {
+        [30] = false,
+        [60] = false,
+        [90] = false,
+        [120] = false,
+        [180] = false,
+        [220] = false
+    }
+
+    -- Killer Değişkenleri
+    _G.KillAura = false
+    _G.SelectedPetForKill = nil
+    _G.RemovePunchAnim = false
+    _G.KillEveryone = false
+    _G.WhitelistFriends = false
+    _G.AutoGoodKarma = false
+    _G.AutoBadKarma = false
+    _G.OpEggAndNan = false
+    _G.SizeNan = false
+    _G.PunchBoost = false
+    _G.UseKillList = false
+    _G.DeathRing = false
+    _G.ShowRing = false
+    _G.DeathRingRange = 50
+    _G.AutoPunch = false
+    _G.FastPunch = false
+    _G.ViewTargetPlayer = nil
+
+    _G.Whitelist = {}
+    _G.KillList = {}
 
     ---------------------------------------------------------
     -- WORNEX AFK UI OLUŞTURUCU
@@ -743,7 +778,321 @@ local function OpenMainHub()
     end)
 
     ---------------------------------------------------------
-    -- 3. FAST FARM SEKMESİ
+    -- 3. KILLER SEKMESİ
+    ---------------------------------------------------------
+    local KillerFrame = TabFrames["Killer"]
+
+    -- Kill Aura
+    CreateCheckBox(KillerFrame, "🔪 Kill Aura", 0, function(v) _G.KillAura = v end)
+
+    -- Select Pet
+    local ChooseKillPetBtn = CreateButton(KillerFrame, "🐾 Select Pet", 30)
+    ChooseKillPetBtn.Size = UDim2.new(0, 240, 0, 28)
+    ChooseKillPetBtn.BackgroundColor3 = Color3.fromRGB(120, 20, 20)
+
+    -- Punch Animation
+    CreateSectionTitle(KillerFrame, "🎬 Punch Animation", 65)
+    CreateButton(KillerFrame, "❌ Remove Punch Anim", 90).MouseButton1Click:Connect(function()
+        _G.RemovePunchAnim = true
+        pcall(function()
+            local char = LocalPlayer.Character
+            if char and char:FindFirstChild("Animate") then
+                char.Animate.disabled = true
+            end
+        end)
+    end)
+    CreateButton(KillerFrame, "🔧 Recover Punch Anim", 125).MouseButton1Click:Connect(function()
+        _G.RemovePunchAnim = false
+        pcall(function()
+            local char = LocalPlayer.Character
+            if char and char:FindFirstChild("Animate") then
+                char.Animate.disabled = false
+            end
+        end)
+    end)
+
+    CreateLine(KillerFrame, 160)
+
+    -- Auto Kill & Whitelist Dropdown
+    CreateSectionTitle(KillerFrame, "🔪 Auto Kill:", 170)
+
+    local AddWhitelistBtn = CreateButton(KillerFrame, "✅ Add to Whitelist", 195)
+    AddWhitelistBtn.Size = UDim2.new(0, 240, 0, 28)
+    AddWhitelistBtn.BackgroundColor3 = Color3.fromRGB(120, 20, 20)
+
+    local WhitelistDropdown = Instance.new("ScrollingFrame")
+    WhitelistDropdown.Parent = KillerFrame
+    WhitelistDropdown.BackgroundColor3 = Color3.fromRGB(20, 5, 5)
+    WhitelistDropdown.Position = UDim2.new(0, 5, 0, 225)
+    WhitelistDropdown.Size = UDim2.new(0, 240, 0, 100)
+    WhitelistDropdown.Visible = false
+    WhitelistDropdown.ZIndex = 10
+
+    AddWhitelistBtn.MouseButton1Click:Connect(function()
+        WhitelistDropdown.Visible = not WhitelistDropdown.Visible
+        if WhitelistDropdown.Visible then
+            for _, child in pairs(WhitelistDropdown:GetChildren()) do
+                if child:IsA("TextButton") then child:Destroy() end
+            end
+            local list = Players:GetPlayers()
+            WhitelistDropdown.CanvasSize = UDim2.new(0, 0, 0, #list * 25)
+            for i, p in ipairs(list) do
+                if p ~= LocalPlayer then
+                    local pBtn = Instance.new("TextButton")
+                    pBtn.Parent = WhitelistDropdown
+                    pBtn.BackgroundColor3 = Color3.fromRGB(30, 10, 10)
+                    pBtn.Position = UDim2.new(0, 0, 0, (i - 1) * 25)
+                    pBtn.Size = UDim2.new(1, 0, 0, 24)
+                    pBtn.Font = Enum.Font.SourceSans
+                    pBtn.Text = "  " .. p.Name
+                    pBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+                    pBtn.TextSize = 13
+                    pBtn.ZIndex = 11
+                    pBtn.MouseButton1Click:Connect(function()
+                        _G.Whitelist[p.Name] = true
+                        WhitelistDropdown.Visible = false
+                    end)
+                end
+            end
+        end
+    end)
+
+    CreateCheckBox(KillerFrame, "🔪 Kill Everyone", 230, function(v) _G.KillEveryone = v end)
+    CreateCheckBox(KillerFrame, "🤝 Whitelist Friends", 255, function(v) _G.WhitelistFriends = v end)
+
+    -- Karma
+    CreateSectionTitle(KillerFrame, "☯️ Karma", 285)
+    CreateCheckBox(KillerFrame, "😇 Auto Good Karma", 310, function(v) _G.AutoGoodKarma = v end)
+    CreateCheckBox(KillerFrame, "😈 Auto Bad Karma", 335, function(v) _G.AutoBadKarma = v end)
+
+    CreateLine(KillerFrame, 365)
+
+    -- Op Egg and nan & Size
+    CreateSectionTitle(KillerFrame, "🥚 Op Egg And nan", 375)
+    CreateCheckBox(KillerFrame, "📏 Size nan", 400, function(v) _G.SizeNan = v end)
+
+    -- Punch Boost
+    CreateCheckBox(KillerFrame, "🥊 Punch Boost", 430, function(v) _G.PunchBoost = v end)
+
+    CreateLine(KillerFrame, 460)
+
+    -- KillList Dropdown
+    local AddKillListBtn = CreateButton(KillerFrame, "🔪 Add to Killlist", 470)
+    AddKillListBtn.Size = UDim2.new(0, 240, 0, 28)
+    AddKillListBtn.BackgroundColor3 = Color3.fromRGB(120, 20, 20)
+
+    local KillListDropdown = Instance.new("ScrollingFrame")
+    KillListDropdown.Parent = KillerFrame
+    KillListDropdown.BackgroundColor3 = Color3.fromRGB(20, 5, 5)
+    KillListDropdown.Position = UDim2.new(0, 5, 0, 500)
+    KillListDropdown.Size = UDim2.new(0, 240, 0, 100)
+    KillListDropdown.Visible = false
+    KillListDropdown.ZIndex = 10
+
+    AddKillListBtn.MouseButton1Click:Connect(function()
+        KillListDropdown.Visible = not KillListDropdown.Visible
+        if KillListDropdown.Visible then
+            for _, child in pairs(KillListDropdown:GetChildren()) do
+                if child:IsA("TextButton") then child:Destroy() end
+            end
+            local list = Players:GetPlayers()
+            KillListDropdown.CanvasSize = UDim2.new(0, 0, 0, #list * 25)
+            for i, p in ipairs(list) do
+                if p ~= LocalPlayer then
+                    local pBtn = Instance.new("TextButton")
+                    pBtn.Parent = KillListDropdown
+                    pBtn.BackgroundColor3 = Color3.fromRGB(30, 10, 10)
+                    pBtn.Position = UDim2.new(0, 0, 0, (i - 1) * 25)
+                    pBtn.Size = UDim2.new(1, 0, 0, 24)
+                    pBtn.Font = Enum.Font.SourceSans
+                    pBtn.Text = "  " .. p.Name
+                    pBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+                    pBtn.TextSize = 13
+                    pBtn.ZIndex = 11
+                    pBtn.MouseButton1Click:Connect(function()
+                        _G.KillList[p.Name] = true
+                        KillListDropdown.Visible = false
+                    end)
+                end
+            end
+        end
+    end)
+
+    CreateCheckBox(KillerFrame, "🔪 Kill List", 505, function(v) _G.UseKillList = v end)
+
+    CreateLine(KillerFrame, 535)
+
+    -- Spy System
+    CreateSectionTitle(KillerFrame, "👁️ Spy System", 545)
+    local SelectSpyBtn = CreateButton(KillerFrame, "Select View Target", 570)
+    SelectSpyBtn.Size = UDim2.new(0, 240, 0, 28)
+    SelectSpyBtn.BackgroundColor3 = Color3.fromRGB(120, 20, 20)
+
+    local SpyDropdown = Instance.new("ScrollingFrame")
+    SpyDropdown.Parent = KillerFrame
+    SpyDropdown.BackgroundColor3 = Color3.fromRGB(20, 5, 5)
+    SpyDropdown.Position = UDim2.new(0, 5, 0, 600)
+    SpyDropdown.Size = UDim2.new(0, 240, 0, 100)
+    SpyDropdown.Visible = false
+    SpyDropdown.ZIndex = 10
+
+    SelectSpyBtn.MouseButton1Click:Connect(function()
+        SpyDropdown.Visible = not SpyDropdown.Visible
+        if SpyDropdown.Visible then
+            for _, child in pairs(SpyDropdown:GetChildren()) do
+                if child:IsA("TextButton") then child:Destroy() end
+            end
+            local list = Players:GetPlayers()
+            SpyDropdown.CanvasSize = UDim2.new(0, 0, 0, #list * 25)
+            for i, p in ipairs(list) do
+                local pBtn = Instance.new("TextButton")
+                pBtn.Parent = SpyDropdown
+                pBtn.BackgroundColor3 = Color3.fromRGB(30, 10, 10)
+                pBtn.Position = UDim2.new(0, 0, 0, (i - 1) * 25)
+                pBtn.Size = UDim2.new(1, 0, 0, 24)
+                pBtn.Font = Enum.Font.SourceSans
+                pBtn.Text = "  " .. p.Name
+                pBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+                pBtn.TextSize = 13
+                pBtn.ZIndex = 11
+                pBtn.MouseButton1Click:Connect(function()
+                    _G.ViewTargetPlayer = p
+                    SelectSpyBtn.Text = "👁️ " .. p.Name
+                    SpyDropdown.Visible = false
+                end)
+            end
+        end
+    end)
+
+    CreateCheckBox(KillerFrame, "👁️ View Player", 605, function(v)
+        if v and _G.ViewTargetPlayer and _G.ViewTargetPlayer.Character then
+            workspace.CurrentCamera.CameraSubject = _G.ViewTargetPlayer.Character:FindFirstChildOfClass("Humanoid")
+        else
+            if LocalPlayer.Character then
+                workspace.CurrentCamera.CameraSubject = LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+            end
+        end
+    end)
+
+    CreateLine(KillerFrame, 635)
+
+    -- Death Ring
+    CreateSectionTitle(KillerFrame, "🔪 Death Ring", 645)
+
+    local RangeInput = CreateInputBox(KillerFrame, "📏 Range 1-140", 670)
+    RangeInput.FocusLost:Connect(function()
+        local val = tonumber(RangeInput.Text)
+        if val then _G.DeathRingRange = math.clamp(val, 1, 140) end
+    end)
+
+    CreateCheckBox(KillerFrame, "🌀 Death Ring", 705, function(v) _G.DeathRing = v end)
+    CreateCheckBox(KillerFrame, "👁️ Show Ring", 730, function(v) _G.ShowRing = v end)
+
+    -- Death Ring Görsel Daire Parçası
+    local SelectionRing = Instance.new("SelectionBox")
+    SelectionRing.Color3 = Color3.fromRGB(255, 0, 0)
+    SelectionRing.LineThickness = 0.05
+    SelectionRing.Parent = workspace
+
+    RunService.RenderStepped:Connect(function()
+        if _G.ShowRing and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+            SelectionRing.Adornee = LocalPlayer.Character.HumanoidRootPart
+            SelectionRing.Visible = true
+        else
+            SelectionRing.Visible = false
+        end
+    end)
+
+    CreateLine(KillerFrame, 760)
+
+    -- Auto Punch System
+    CreateSectionTitle(KillerFrame, "👊 Auto Punch System", 770)
+    CreateCheckBox(KillerFrame, "👊 Auto Punch", 795, function(v) _G.AutoPunch = v end)
+    CreateCheckBox(KillerFrame, "⚡ Fast Punch", 820, function(v) _G.FastPunch = v end)
+
+    CreateLine(KillerFrame, 850)
+
+    -- Kill Counter UI
+    local KillCounterGui = Instance.new("ScreenGui")
+    KillCounterGui.Name = "KillCounterGui"
+    KillCounterGui.Parent = game:GetService("CoreGui") or LocalPlayer:WaitForChild("PlayerGui")
+    KillCounterGui.Enabled = false
+
+    local KCFrame = Instance.new("Frame")
+    KCFrame.Parent = KillCounterGui
+    KCFrame.BackgroundColor3 = Color3.fromRGB(15, 5, 25)
+    KCFrame.BorderSizePixel = 0
+    KCFrame.Position = UDim2.new(0.5, -75, 0.15, 0)
+    KCFrame.Size = UDim2.new(0, 150, 0, 50)
+    KCFrame.Active = true
+    KCFrame.Draggable = true
+    local KCCorner = Instance.new("UICorner")
+    KCCorner.CornerRadius = UDim.new(0, 6)
+    KCCorner.Parent = KCFrame
+
+    local KCTitle = Instance.new("TextLabel")
+    KCTitle.Parent = KCFrame
+    KCTitle.BackgroundTransparency = 1
+    KCTitle.Position = UDim2.new(0, 0, 0, 4)
+    KCTitle.Size = UDim2.new(1, 0, 0, 18)
+    KCTitle.Font = Enum.Font.SourceSansBold
+    KCTitle.Text = "QTX CLAN"
+    KCTitle.TextColor3 = Color3.fromRGB(200, 200, 255)
+    KCTitle.TextSize = 13
+
+    local KCCount = Instance.new("TextLabel")
+    KCCount.Parent = KCFrame
+    KCCount.BackgroundTransparency = 1
+    KCCount.Position = UDim2.new(0, 0, 0, 22)
+    KCCount.Size = UDim2.new(1, 0, 0, 22)
+    KCCount.Font = Enum.Font.SourceSansBold
+    KCTitle.TextSize = 16
+    KCCount.Text = "Kills: 0"
+    KCCount.TextColor3 = Color3.fromRGB(255, 255, 255)
+
+    CreateButton(KillerFrame, "📊 Kill Counter UI", 860).MouseButton1Click:Connect(function()
+        KillCounterGui.Enabled = not KillCounterGui.Enabled
+    end)
+
+    task.spawn(function()
+        while task.wait(0.5) do
+            if KillCounterGui.Enabled then
+                pcall(function()
+                    local kills = LocalPlayer.leaderstats and LocalPlayer.leaderstats:FindFirstChild("Kills")
+                    KCCount.Text = "Kills: " .. (kills and kills.Value or "0")
+                end)
+            end
+        end
+    end)
+
+    CreateLine(KillerFrame, 895)
+
+    -- Whitelist / Killist Metin Göstergeleri
+    local WhitelistLabel = CreateSectionTitle(KillerFrame, "✅ Whitelist: None", 905)
+    local KilllistLabel = CreateSectionTitle(KillerFrame, "🔪 Killlist: None", 930)
+
+    task.spawn(function()
+        while task.wait(1) do
+            local wlStr = ""
+            for name, _ in pairs(_G.Whitelist) do wlStr = wlStr .. name .. ", " end
+            WhitelistLabel.Text = "✅ Whitelist: " .. (wlStr ~= "" and wlStr:sub(1, -3) or "None")
+
+            local klStr = ""
+            for name, _ in pairs(_G.KillList) do klStr = klStr .. name .. ", " end
+            KilllistLabel.Text = "🔪 Killlist: " .. (klStr ~= "" and klStr:sub(1, -3) or "None")
+        end
+    end)
+
+    CreateButton(KillerFrame, "🗑️ Clear Whitelist", 955).MouseButton1Click:Connect(function()
+        _G.Whitelist = {}
+    end)
+
+    CreateButton(KillerFrame, "🗑️ Clear Blacklist", 990).MouseButton1Click:Connect(function()
+        _G.KillList = {}
+    end)
+
+    ---------------------------------------------------------
+    -- 4. FAST FARM SEKMESİ
     ---------------------------------------------------------
     local FastFarmFrame = TabFrames["Fast Farm"]
     CreateSectionTitle(FastFarmFrame, "⚠️ WARNING: These features are only for", 0, Color3.fromRGB(234, 179, 8))
@@ -754,105 +1103,89 @@ local function OpenMainHub()
     CreateCheckBox(FastFarmFrame, "🏷️ Set Size 1", 110, function(v) _G.SetSize1 = v end)
 
     ---------------------------------------------------------
-    -- 4. GIFTS SEKMESİ
+    -- 5. CALCULATOR SEKMESİ
     ---------------------------------------------------------
-    local GiftsFrame = TabFrames["Gifts"]
+    local CalculatorFrame = TabFrames["Calculator"]
 
-    CreateSectionTitle(GiftsFrame, "🎁 Gifting Protein egg:", 0)
-    local ProteinEggCountLabel = CreateSectionTitle(GiftsFrame, "🥚 Protein Eggs: 0", 25)
-    
-    local EggTargetInput = CreateInputBox(GiftsFrame, "👤 Player to Gift Eggs", 55)
-    local EggAmountInput = CreateInputBox(GiftsFrame, "🔢 Amount of Eggs", 90)
-    local GiftEggBtn = CreateButton(GiftsFrame, "🎁 Gift Eggs", 125)
-
-    GiftEggBtn.MouseButton1Click:Connect(function()
-        local target = EggTargetInput.Text
-        local amount = tonumber(EggAmountInput.Text) or 1
-        local evs = getREvents()
-        if target ~= "" and evs and evs:FindFirstChild("giftEggRemote") then
-            pcall(function() evs.giftEggRemote:FireServer(target, amount) end)
-        end
-    end)
-
-    CreateLine(GiftsFrame, 160)
-
-    CreateSectionTitle(GiftsFrame, "🎁 Gifting Tropical Shakes:", 170)
-    local ShakeCountLabel = CreateSectionTitle(GiftsFrame, "🍹 Tropical Shakes: 0", 195)
-
-    local ShakeTargetInput = CreateInputBox(GiftsFrame, "👤 Player to Gift Tropical Shakes", 225)
-    local ShakeAmountInput = CreateInputBox(GiftsFrame, "🔢 Tropical Shakes gift", 260)
-    local GiftShakeBtn = CreateButton(GiftsFrame, "🎁 Gift Tropical Shakes", 295)
-
-    GiftShakeBtn.MouseButton1Click:Connect(function()
-        local target = ShakeTargetInput.Text
-        local amount = tonumber(ShakeAmountInput.Text) or 1
-        local evs = getREvents()
-        if target ~= "" and evs and evs:FindFirstChild("giftShakeRemote") then
-            pcall(function() evs.giftShakeRemote:FireServer(target, amount) end)
-        end
-    end)
-
-    CreateLine(GiftsFrame, 330)
-    CreateCheckBox(GiftsFrame, "🗑️ Auto Clear Inventory", 345, function(v)
-        _G.AutoClearInventory = v
-        if v then
-            pcall(function()
-                for _, item in pairs(LocalPlayer.Backpack:GetChildren()) do
-                    if item:IsA("Tool") and item.Name ~= "Weight" and item.Name ~= "Pushups" and item.Name ~= "Handstands" and item.Name ~= "Situps" then
-                        item:Destroy()
-                    end
-                end
-            end)
-        end
-    end)
-
-    ---------------------------------------------------------
-    -- 5. STATS (MISC/STATS) SEKMESİ
-    ---------------------------------------------------------
-    local MiscFrame = TabFrames["Stats"]
-    CreateSectionTitle(MiscFrame, "🚶 Movement", 0)
-    CreateCheckBox(MiscFrame, "👤 No-Clip", 25, function(v) _G.NoClip = v end)
-    CreateCheckBox(MiscFrame, "🦘 Infinite Jump", 50, function(v) _G.InfJump = v end)
-    CreateCheckBox(MiscFrame, "🌊 Full Walk on Water", 75, function(v) _G.FullWalkOnWater = v end)
-
-    ---------------------------------------------------------
-    -- 6. CRYSTALS SEKMESİ
-    ---------------------------------------------------------
-    local CrystalsFrame = TabFrames["Crystals"]
-    CreateSectionTitle(CrystalsFrame, "💎 Auto Open Crystals", 0)
-    local SelectedLabel = CreateSectionTitle(CrystalsFrame, "📌 Selected: Blue Crystal", 25, Color3.fromRGB(74, 222, 128))
-    CreateCheckBox(CrystalsFrame, "✨ Auto Open Crystal", 55, function(v) _G.AutoOpenCrystal = v end)
-    CreateLine(CrystalsFrame, 90)
-
-    CreateSectionTitle(CrystalsFrame, "🔮 Select Egg / Crystal (Worst to Best):", 100)
-
-    local CrystalList = {
-        "Blue Crystal", "Green Crystal", "Frost Crystal", "Mythical Crystal",
-        "Inferno Crystal", "Legends Crystal", "Muscle Monarch Crystal",
-        "Galaxy Crystal", "Cyber Crystal", "Super Crystal"
+    local calcItems = {
+        {Name = "Strength", Icon = "▶️💪", Var = "CalcStrength"},
+        {Name = "Durability", Icon = "▶️🛡️", Var = "CalcDurability"},
+        {Name = "Rebirths", Icon = "▶️🔄", Var = "CalcRebirths"},
+        {Name = "Kills", Icon = "▶️⚔️", Var = "CalcKills"},
+        {Name = "Brawls", Icon = "▶️🥊", Var = "CalcBrawls"}
     }
 
-    local crystalBtnButtons = {}
+    local calcUIElements = {}
 
-    for i, cName in ipairs(CrystalList) do
-        local posY = 130 + ((i - 1) * 32)
-        local cBtn = CreateButton(CrystalsFrame, "🥚 " .. cName, posY)
-        cBtn.BackgroundColor3 = (cName == _G.SelectedCrystal) and Color3.fromRGB(34, 197, 94) or Color3.fromRGB(120, 20, 20)
-        table.insert(crystalBtnButtons, {btn = cBtn, name = cName})
+    for i, item in ipairs(calcItems) do
+        local posY = (i - 1) * 35
+        
+        local CalcBtnFrame = Instance.new("Frame")
+        CalcBtnFrame.Parent = CalculatorFrame
+        CalcBtnFrame.BackgroundColor3 = Color3.fromRGB(230, 20, 20)
+        CalcBtnFrame.BorderSizePixel = 0
+        CalcBtnFrame.Position = UDim2.new(0, 5, 0, posY)
+        CalcBtnFrame.Size = UDim2.new(1, -20, 0, 28)
+        
+        local CBCorner = Instance.new("UICorner")
+        CBCorner.CornerRadius = UDim.new(0, 5)
+        CBCorner.Parent = CalcBtnFrame
 
-        cBtn.MouseButton1Click:Connect(function()
-            _G.SelectedCrystal = cName
-            SelectedLabel.Text = "📌 Selected: " .. cName
-            for _, item in ipairs(crystalBtnButtons) do
-                item.btn.BackgroundColor3 = (item.name == _G.SelectedCrystal) and Color3.fromRGB(34, 197, 94) or Color3.fromRGB(120, 20, 20)
-            end
+        local CalcBtn = Instance.new("TextButton")
+        CalcBtn.Parent = CalcBtnFrame
+        CalcBtn.BackgroundTransparency = 1
+        CalcBtn.Position = UDim2.new(0, 10, 0, 0)
+        CalcBtn.Size = UDim2.new(1, -10, 1, 0)
+        CalcBtn.Font = Enum.Font.SourceSansBold
+        CalcBtn.Text = item.Icon .. " " .. item.Name
+        CalcBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+        CalcBtn.TextSize = 14
+        CalcBtn.TextXAlignment = Enum.TextXAlignment.Left
+
+        _G[item.Var] = false
+        table.insert(calcUIElements, {Frame = CalcBtnFrame, Var = item.Var})
+
+        CalcBtn.MouseButton1Click:Connect(function()
+            _G[item.Var] = not _G[item.Var]
+            CalcBtnFrame.BackgroundColor3 = _G[item.Var] and Color3.fromRGB(40, 200, 40) or Color3.fromRGB(230, 20, 20)
         end)
     end
 
+    local ResetCalcFrame = Instance.new("Frame")
+    ResetCalcFrame.Parent = CalculatorFrame
+    ResetCalcFrame.BackgroundTransparency = 1
+    ResetCalcFrame.Position = UDim2.new(0, 5, 0, #calcItems * 35 + 5)
+    ResetCalcFrame.Size = UDim2.new(1, -20, 0, 28)
+
+    local ResetCalcBtn = Instance.new("TextButton")
+    ResetCalcBtn.Parent = ResetCalcFrame
+    ResetCalcBtn.BackgroundTransparency = 1
+    ResetCalcBtn.Position = UDim2.new(0, 10, 0, 0)
+    ResetCalcBtn.Size = UDim2.new(1, -10, 1, 0)
+    ResetCalcBtn.Font = Enum.Font.SourceSansBold
+    ResetCalcBtn.Text = "🔄 Reset All Calculators"
+    ResetCalcBtn.TextColor3 = Color3.fromRGB(180, 200, 255)
+    ResetCalcBtn.TextSize = 14
+    ResetCalcBtn.TextXAlignment = Enum.TextXAlignment.Left
+
+    ResetCalcBtn.MouseButton1Click:Connect(function()
+        for _, element in ipairs(calcUIElements) do
+            _G[element.Var] = false
+            element.Frame.BackgroundColor3 = Color3.fromRGB(230, 20, 20)
+        end
+    end)
+
     ---------------------------------------------------------
-    -- 7. STATS SEKMESİ
+    -- 6. STATS SEKMESİ
     ---------------------------------------------------------
     local StatsFrame = TabFrames["Stats"]
+    CreateSectionTitle(StatsFrame, "🚶 Movement", 0)
+    CreateCheckBox(StatsFrame, "👤 No-Clip", 25, function(v) _G.NoClip = v end)
+    CreateCheckBox(StatsFrame, "🦘 Infinite Jump", 50, function(v) _G.InfJump = v end)
+    CreateCheckBox(StatsFrame, "🌊 Full Walk on Water", 75, function(v) _G.FullWalkOnWater = v end)
+
+    CreateLine(StatsFrame, 105)
+
     CreateSectionTitle(StatsFrame, "📊 Player Stats:", 115)
 
     local ChoosePlayerBtn = CreateButton(StatsFrame, "👤 Choose Player", 145)
@@ -941,27 +1274,7 @@ local function OpenMainHub()
     end)
 
     ---------------------------------------------------------
-    -- 8. CALCULATOR SEKMESİ
-    ---------------------------------------------------------
-    local CalculatorFrame = TabFrames["Calculator"]
-    CreateSectionTitle(CalculatorFrame, "🧮 Stats Calculator", 0)
-    CreateCheckBox(CalculatorFrame, "💪 Strength", 30, function(v) _G.CalcStrength = v end)
-    CreateCheckBox(CalculatorFrame, "🛡️ Durability", 60, function(v) _G.CalcDurability = v end)
-    CreateCheckBox(CalculatorFrame, "🔄 Rebirths", 90, function(v) _G.CalcRebirths = v end)
-    CreateCheckBox(CalculatorFrame, "⚔️ Kills", 120, function(v) _G.CalcKills = v end)
-    CreateCheckBox(CalculatorFrame, "🥊 Brawls", 150, function(v) _G.CalcBrawls = v end)
-    local ResetCalcBtn = CreateButton(CalculatorFrame, "🔄 Reset All Calculators", 185)
-    ResetCalcBtn.Size = UDim2.new(0, 240, 0, 28)
-    ResetCalcBtn.BackgroundColor3 = Color3.fromRGB(120, 20, 20)
-
-    ---------------------------------------------------------
-    -- 9. KILLER SEKMESİ
-    ---------------------------------------------------------
-    local KillerFrame = TabFrames["Killer"]
-    CreateSectionTitle(KillerFrame, "⚔️ Player Killer Options", 0)
-
-    ---------------------------------------------------------
-    -- 10. TRADE SEKMESİ
+    -- 7. TRADE SEKMESİ
     ---------------------------------------------------------
     local TradeFrame = TabFrames["Trade"]
     CreateSectionTitle(TradeFrame, "🤝 Trade System", 0)
@@ -980,13 +1293,7 @@ local function OpenMainHub()
     CreateCheckBox(TradeFrame, "🔄 Auto Trade", 105, function(v) _G.AutoTrade = v end)
 
     ---------------------------------------------------------
-    -- 11. EXTRAS SEKMESİ
-    ---------------------------------------------------------
-    local ExtrasFrame = TabFrames["Extras"]
-    CreateSectionTitle(ExtrasFrame, "✨ Extra Features", 0)
-
-    ---------------------------------------------------------
-    -- 12. TELEPORTS SEKMESİ
+    -- 8. TELEPORTS SEKMESİ
     ---------------------------------------------------------
     local TeleportsFrame = TabFrames["Teleports"]
     CreateSectionTitle(TeleportsFrame, "🗺️ All Islands Teleport", 0)
@@ -1019,7 +1326,91 @@ local function OpenMainHub()
     end
 
     ---------------------------------------------------------
-    -- 13. CREDITS SEKMESİ (Görseldeki Gibi Dolduruldu)
+    -- 9. EXTRAS SEKMESİ
+    ---------------------------------------------------------
+    local ExtrasFrame = TabFrames["Extras"]
+    
+    -- 1. Follow System
+    CreateSectionTitle(ExtrasFrame, "☀️ Follow System", 0)
+    
+    local SelectFollowPlayerBtn = CreateButton(ExtrasFrame, "👤 Teleport player", 25)
+    SelectFollowPlayerBtn.Size = UDim2.new(0, 240, 0, 28)
+    SelectFollowPlayerBtn.BackgroundColor3 = Color3.fromRGB(120, 20, 20)
+    SelectFollowPlayerBtn.TextXAlignment = Enum.TextXAlignment.Left
+
+    local FollowDropdown = Instance.new("ScrollingFrame")
+    FollowDropdown.Parent = ExtrasFrame
+    FollowDropdown.BackgroundColor3 = Color3.fromRGB(20, 5, 5)
+    FollowDropdown.Position = UDim2.new(0, 5, 0, 55)
+    FollowDropdown.Size = UDim2.new(0, 240, 0, 100)
+    FollowDropdown.Visible = false
+    FollowDropdown.ZIndex = 10
+
+    SelectFollowPlayerBtn.MouseButton1Click:Connect(function()
+        FollowDropdown.Visible = not FollowDropdown.Visible
+        if FollowDropdown.Visible then
+            for _, child in pairs(FollowDropdown:GetChildren()) do
+                if child:IsA("TextButton") then child:Destroy() end
+            end
+            local list = Players:GetPlayers()
+            FollowDropdown.CanvasSize = UDim2.new(0, 0, 0, #list * 25)
+            for i, p in ipairs(list) do
+                if p ~= LocalPlayer then
+                    local pBtn = Instance.new("TextButton")
+                    pBtn.Parent = FollowDropdown
+                    pBtn.BackgroundColor3 = Color3.fromRGB(30, 10, 10)
+                    pBtn.Position = UDim2.new(0, 0, 0, (i - 1) * 25)
+                    pBtn.Size = UDim2.new(1, 0, 0, 24)
+                    pBtn.Font = Enum.Font.SourceSans
+                    pBtn.Text = "  " .. p.Name
+                    pBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+                    pBtn.TextSize = 13
+                    pBtn.ZIndex = 11
+                    pBtn.MouseButton1Click:Connect(function()
+                        _G.FollowPlayerTarget = p
+                        SelectFollowPlayerBtn.Text = "👤 " .. p.Name
+                        FollowDropdown.Visible = false
+                    end)
+                end
+            end
+        end
+    end)
+
+    CreateCheckBox(ExtrasFrame, "⛔ Do not follow", 60, function(v) _G.DoFollowPlayer = not v end)
+
+    CreateLine(ExtrasFrame, 95)
+
+    -- 2. Ground Slam
+    CreateSectionTitle(ExtrasFrame, "💥 Ground Slam", 105)
+    CreateCheckBox(ExtrasFrame, "💥 Auto Ground Slam", 130, function(v) _G.AutoGroundSlam = v end)
+
+    CreateLine(ExtrasFrame, 165)
+
+    -- 3. Empty Teleport
+    CreateSectionTitle(ExtrasFrame, "📍 Empty Teleport", 175)
+    CreateButton(ExtrasFrame, "📍 Empty", 200).MouseButton1Click:Connect(function()
+        pcall(function()
+            if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+                LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(0, 500, 0)
+            end
+        end)
+    end)
+
+    CreateLine(ExtrasFrame, 235)
+
+    -- 4. Auto Snacks
+    CreateSectionTitle(ExtrasFrame, "☀️ Auto Snacks", 245)
+    
+    local snackMinList = {30, 60, 90, 120, 180, 220}
+    for i, minVal in ipairs(snackMinList) do
+        local posY = 270 + ((i - 1) * 25)
+        CreateCheckBox(ExtrasFrame, "🥚 Eat Egg (" .. minVal .. " Min)", posY, function(v)
+            _G.EatEggs[minVal] = v
+        end)
+    end
+
+    ---------------------------------------------------------
+    -- 10. CREDITS SEKMESİ
     ---------------------------------------------------------
     local CreditsFrame = TabFrames["Credits"]
     CreateSectionTitle(CreditsFrame, "🌟 Credits & Information", 0)
@@ -1027,6 +1418,93 @@ local function OpenMainHub()
     CreateSectionTitle(CreditsFrame, "💎 Hub Version: 5.0 Op Main & Expanded Farm", 60, Color3.fromRGB(255, 255, 255))
     CreateSectionTitle(CreditsFrame, "🚀 Special Thanks: QTX CLAN Community", 90, Color3.fromRGB(100, 200, 255))
     CreateSectionTitle(CreditsFrame, "✨ Key: QTXONTOP", 120, Color3.fromRGB(74, 222, 128))
+
+    ---------------------------------------------------------
+    -- 11. GIFTS SEKMESİ
+    ---------------------------------------------------------
+    local GiftsFrame = TabFrames["Gifts"]
+
+    CreateSectionTitle(GiftsFrame, "🎁 Gifting Protein egg:", 0)
+    local ProteinEggCountLabel = CreateSectionTitle(GiftsFrame, "🥚 Protein Eggs: 0", 25)
+    
+    local EggTargetInput = CreateInputBox(GiftsFrame, "👤 Player to Gift Eggs", 55)
+    local EggAmountInput = CreateInputBox(GiftsFrame, "🔢 Amount of Eggs", 90)
+    local GiftEggBtn = CreateButton(GiftsFrame, "🎁 Gift Eggs", 125)
+
+    GiftEggBtn.MouseButton1Click:Connect(function()
+        local target = EggTargetInput.Text
+        local amount = tonumber(EggAmountInput.Text) or 1
+        local evs = getREvents()
+        if target ~= "" and evs and evs:FindFirstChild("giftEggRemote") then
+            pcall(function() evs.giftEggRemote:FireServer(target, amount) end)
+        end
+    end)
+
+    CreateLine(GiftsFrame, 160)
+
+    CreateSectionTitle(GiftsFrame, "🎁 Gifting Tropical Shakes:", 170)
+    local ShakeCountLabel = CreateSectionTitle(GiftsFrame, "🍹 Tropical Shakes: 0", 195)
+
+    local ShakeTargetInput = CreateInputBox(GiftsFrame, "👤 Player to Gift Tropical Shakes", 225)
+    local ShakeAmountInput = CreateInputBox(GiftsFrame, "🔢 Tropical Shakes gift", 260)
+    local GiftShakeBtn = CreateButton(GiftsFrame, "🎁 Gift Tropical Shakes", 295)
+
+    GiftShakeBtn.MouseButton1Click:Connect(function()
+        local target = ShakeTargetInput.Text
+        local amount = tonumber(ShakeAmountInput.Text) or 1
+        local evs = getREvents()
+        if target ~= "" and evs and evs:FindFirstChild("giftShakeRemote") then
+            pcall(function() evs.giftShakeRemote:FireServer(target, amount) end)
+        end
+    end)
+
+    CreateLine(GiftsFrame, 330)
+    CreateCheckBox(GiftsFrame, "🗑️ Auto Clear Inventory", 345, function(v)
+        _G.AutoClearInventory = v
+        if v then
+            pcall(function()
+                for _, item in pairs(LocalPlayer.Backpack:GetChildren()) do
+                    if item:IsA("Tool") and item.Name ~= "Weight" and item.Name ~= "Pushups" and item.Name ~= "Handstands" and item.Name ~= "Situps" then
+                        item:Destroy()
+                    end
+                end
+            end)
+        end
+    end)
+
+    ---------------------------------------------------------
+    -- 12. CRYSTALS SEKMESİ
+    ---------------------------------------------------------
+    local CrystalsFrame = TabFrames["Crystals"]
+    CreateSectionTitle(CrystalsFrame, "💎 Auto Open Crystals", 0)
+    local SelectedLabel = CreateSectionTitle(CrystalsFrame, "📌 Selected: Blue Crystal", 25, Color3.fromRGB(74, 222, 128))
+    CreateCheckBox(CrystalsFrame, "✨ Auto Open Crystal", 55, function(v) _G.AutoOpenCrystal = v end)
+    CreateLine(CrystalsFrame, 90)
+
+    CreateSectionTitle(CrystalsFrame, "🔮 Select Egg / Crystal (Worst to Best):", 100)
+
+    local CrystalList = {
+        "Blue Crystal", "Green Crystal", "Frost Crystal", "Mythical Crystal",
+        "Inferno Crystal", "Legends Crystal", "Muscle Monarch Crystal",
+        "Galaxy Crystal", "Cyber Crystal", "Super Crystal"
+    }
+
+    local crystalBtnButtons = {}
+
+    for i, cName in ipairs(CrystalList) do
+        local posY = 130 + ((i - 1) * 32)
+        local cBtn = CreateButton(CrystalsFrame, "🥚 " .. cName, posY)
+        cBtn.BackgroundColor3 = (cName == _G.SelectedCrystal) and Color3.fromRGB(34, 197, 94) or Color3.fromRGB(120, 20, 20)
+        table.insert(crystalBtnButtons, {btn = cBtn, name = cName})
+
+        cBtn.MouseButton1Click:Connect(function()
+            _G.SelectedCrystal = cName
+            SelectedLabel.Text = "📌 Selected: " .. cName
+            for _, item in ipairs(crystalBtnButtons) do
+                item.btn.BackgroundColor3 = (item.name == _G.SelectedCrystal) and Color3.fromRGB(34, 197, 94) or Color3.fromRGB(120, 20, 20)
+            end
+        end)
+    end
 
     ---------------------------------------------------------
     -- STEP VE RENDER DÖNGÜLERİ
@@ -1067,6 +1545,15 @@ local function OpenMainHub()
                 VirtualUser:ClickButton2(Vector2.new(0,0))
             end)
         end
+
+        -- Follow System Döngüsü
+        if _G.DoFollowPlayer and _G.FollowPlayerTarget and _G.FollowPlayerTarget.Character and _G.FollowPlayerTarget.Character:FindFirstChild("HumanoidRootPart") then
+            if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+                pcall(function()
+                    LocalPlayer.Character.HumanoidRootPart.CFrame = _G.FollowPlayerTarget.Character.HumanoidRootPart.CFrame * CFrame.new(0, 0, 3)
+                end)
+            end
+        end
     end)
 
     ---------------------------------------------------------
@@ -1076,17 +1563,81 @@ local function OpenMainHub()
         local jungleFarmIndex = 1
         local jungleGyms = {"Jungle Bench Press", "Jungle Squat", "Jungle Pull Ups"}
 
-        while task.wait(_G.FastTools and 0.01 or 0.1) do
+        while task.wait((_G.FastTools or _G.FastPunch) and 0.01 or 0.1) do
             local char = LocalPlayer.Character
 
+            -- Auto Tool
             if char and _G.AutoTool then
                 useToolAndPunch(_G.AutoTool)
             end
 
+            -- Multi Tools
             if _G.AutoMultiWeight then useToolAndPunch("Weight") end
             if _G.AutoMultiPushups then useToolAndPunch("Pushups") end
             if _G.AutoMultiSitups then useToolAndPunch("Situps") end
             if _G.AutoMultiHandstands then useToolAndPunch("Handstands") end
+
+            -- Auto Punch System
+            if _G.AutoPunch or _G.FastPunch then
+                useToolAndPunch("Punch")
+            end
+
+            -- Ground Slam Event Trigger
+            if _G.AutoGroundSlam then
+                local evs = getREvents()
+                if evs and evs:FindFirstChild("groundSlamEvent") then
+                    pcall(function() evs.groundSlamEvent:FireServer() end)
+                end
+            end
+
+            -- Eat Eggs / Auto Snacks Event Triggers
+            local rewardIndexMap = {[30] = 1, [60] = 2, [90] = 3, [120] = 4, [180] = 5, [220] = 6}
+            for minVal, isEnabled in pairs(_G.EatEggs) do
+                if isEnabled then
+                    local evs = getREvents()
+                    if evs and evs:FindFirstChild("getTimeRewardRemote") then
+                        pcall(function() evs.getTimeRewardRemote:InvokeServer(rewardIndexMap[minVal]) end)
+                    end
+                end
+            end
+
+            -- Killer Mantıkları (Kill Aura, Auto Kill, Death Ring)
+            if char and char:FindFirstChild("HumanoidRootPart") then
+                local myPos = char.HumanoidRootPart.Position
+
+                for _, p in pairs(Players:GetPlayers()) do
+                    if p ~= LocalPlayer and p.Character and p.Character:FindFirstChild("HumanoidRootPart") and p.Character:FindFirstChildOfClass("Humanoid") then
+                        local targetChar = p.Character
+                        local targetRoot = targetChar.HumanoidRootPart
+                        local dist = (targetRoot.Position - myPos).Magnitude
+
+                        local isWhitelisted = _G.Whitelist[p.Name] or (_G.WhitelistFriends and LocalPlayer:IsFriendsWith(p.UserId))
+                        local isKillListed = _G.KillList[p.Name]
+
+                        local shouldAttack = false
+
+                        if _G.KillAura and dist <= 15 then
+                            shouldAttack = true
+                        elseif _G.KillEveryone and not isWhitelisted then
+                            shouldAttack = true
+                        elseif _G.UseKillList and isKillListed then
+                            shouldAttack = true
+                        elseif _G.DeathRing and dist <= _G.DeathRingRange and not isWhitelisted then
+                            shouldAttack = true
+                        end
+
+                        if shouldAttack and targetChar:FindFirstChildOfClass("Humanoid").Health > 0 then
+                            pcall(function()
+                                local evs = getREvents()
+                                if evs and evs:FindFirstChild("muscleEvent") then
+                                    evs.muscleEvent:FireServer("punch", "leftHand")
+                                    evs.muscleEvent:FireServer("punch", "rightHand")
+                                end
+                            end)
+                        end
+                    end
+                end
+            end
 
             if _G.GamepassAutoLift then
                 local evs = getREvents()
