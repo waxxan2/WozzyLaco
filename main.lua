@@ -1023,10 +1023,10 @@ local function OpenMainHub()
     ---------------------------------------------------------
     local CreditsFrame = TabFrames["Credits"]
     CreateSectionTitle(CreditsFrame, "🌟 Credits & Information", 0)
-    CreateSectionTitle(CreditsFrame, "👑 Script Creator: WOZZY (MAMI HUB V2)", 30, Color3.fromRGB(255, 60, 60))
+    CreateSectionTitle(CreditsFrame, "👑 Script Creator: WOZZY (QTX CLAN)", 30, Color3.fromRGB(255, 60, 60))
     CreateSectionTitle(CreditsFrame, "💎 Hub Version: 5.0 Op Main & Expanded Farm", 60, Color3.fromRGB(255, 255, 255))
-    CreateSectionTitle(CreditsFrame, "🚀 Special Thanks: MAMI HUB Community", 90, Color3.fromRGB(100, 200, 255))
-    CreateSectionTitle(CreditsFrame, "✨ Key: BestMami", 120, Color3.fromRGB(74, 222, 128))
+    CreateSectionTitle(CreditsFrame, "🚀 Special Thanks: QTX CLAN Community", 90, Color3.fromRGB(100, 200, 255))
+    CreateSectionTitle(CreditsFrame, "✨ Key: QTXONTOP", 120, Color3.fromRGB(74, 222, 128))
 
     ---------------------------------------------------------
     -- STEP VE RENDER DÖNGÜLERİ
