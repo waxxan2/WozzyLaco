@@ -171,7 +171,7 @@ local function OpenMainHub()
     OpenMiniBtn.Position = UDim2.new(0.5, -260, 0.4, 0)
     OpenMiniBtn.Size = UDim2.new(0, 520, 0, 28)
     OpenMiniBtn.Font = Enum.Font.SourceSansBold
-    OpenMiniBtn.Text = "🔴 Wornex Hub || 5.0 Version || Have good day ! - " .. PlayerName
+    OpenMiniBtn.Text = "🔴 QTX CLAN || 2.0 Version || Have good day ! - " .. PlayerName
     OpenMiniBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
     OpenMiniBtn.TextSize = 14
     OpenMiniBtn.Visible = false
